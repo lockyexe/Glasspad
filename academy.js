@@ -7,7 +7,12 @@
   const LS = { get: (k, d) => { try { const v = localStorage.getItem('gp_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem('gp_' + k, JSON.stringify(v)); } catch (e) { } } };
   const PR = LS.get('acad', { done: {}, quiz: {}, flags: {}, cur: 1 });
   const save = () => LS.set('acad', PR);
-  const flag = k => { PR.flags[k] = Date.now(); save(); checkMission(); };
+  const flag = k => {
+    PR.flags[k] = Date.now();
+    if (k === 'clip') { PR.cc = (PR.cc || 0) + 1; if (PR.cc % 5 === 0) PR.flags.clip5 = Date.now(); }
+    if (k === 'closed') { PR.closed = (PR.closed || 0) + 1; if (PR.closed >= 10) PR.flags.trades10 = Date.now(); }
+    save(); checkMission();
+  };
   const since = (k, t) => (PR.flags[k] || 0) >= (t || 0);
 
   // ---------------- the 20 episodes ----------------
@@ -137,15 +142,15 @@
 
   // ---------------- mission checks (flags set by hooks below) ----------------
   function startT(n) { return (PR.st || {})[n] || 0; }
-  function missionDone(n) { const ep = E[n - 1]; return since(ep.m[1], startT(n)); }
+  function missionDone(n) { const ep = E[n - 1]; return ep.m ? since(ep.m[1], startT(n)) : PR.quiz[n] === ep.q[2]; }
   function checkMission() {
     const n = PR.cur; if (!n || PR.done[n]) return; const ep = E[n - 1]; if (!ep) return;
-    if (PR.quiz[n] && missionDone(n)) complete(n);
+    if (PR.quiz[n] != null && missionDone(n)) complete(n);
     const el = $('#acMis'); if (el) paintMission(n);
   }
   function complete(n) {
     if (PR.done[n]) return; PR.done[n] = Date.now(); A.W.sol += REWARD; A.saveW(); A.renderBal(true); save();
-    A.toast('🎓', 'Episode ' + n + ' complete!', '+◎' + REWARD + ' SIM reward' + (n < E.length ? ' · Episode ' + (n + 1) + ' unlocked' : ' · Academy finished 🏆'), 'ok');
+    A.toast('🎓', 'Episode ' + n + ' complete!', '+◎' + REWARD + ' SIM reward' + (n < E.length ? ' · Episode ' + (n + 1) + ' unlocked' : ' · All ' + E.length + ' episodes done 🏆'), 'ok');
     try { const [x, y] = [innerWidth / 2, innerHeight / 2]; A.FX.burst(x, y, { n: 40, cols: [A.T.a1, A.T.a2, '#fff', '#ffcf3a'], sp: 7, type: 'star', life: 50 }); } catch (e) { }
     if (n < E.length) PR.cur = n + 1; save(); render();
   }
@@ -158,23 +163,25 @@
   function unlocked(n) { return n === 1 || PR.done[n - 1] || PR.done[n]; }
   function list() {
     const dn = Object.keys(PR.done).length;
-    return '<div class="ac-top"><button class="ib" data-x="close"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>🎓 Academy</b><span class="mu">' + dn + '/20</span></div>' +
-      '<div class="ac-prog"><i style="width:' + (dn / 20 * 100) + '%"></i></div>' +
-      '<p class="ac-intro">20 short episodes on how memecoins really work. Each has a 1-question quiz and a mission in the game. Finish one to unlock the next (+◎' + REWARD + ' SIM each).</p>' +
-      '<div class="ac-eps">' + E.map((e, i) => { const n = i + 1, d = PR.done[n], u = unlocked(n); return '<button class="ac-ep' + (d ? ' done' : '') + (!u ? ' lock' : '') + (PR.cur === n && !d ? ' cur' : '') + '" data-ep="' + n + '"><span class="ac-n">' + (d ? '✓' : u ? n : '🔒') + '</span><span class="ac-em">' + e.em + '</span><span class="ac-t">' + esc(e.t) + '</span></button>'; }).join('') + '</div>';
+    const SEA = { 1: 'Season 1 · The basics', 11: 'Season 2 · Reading coins', 21: 'Season 3 · Don\'t get scammed', 31: 'Season 4 · Strategy & risk', 41: 'Season 5 · Mind & money' };
+    return '<div class="ac-top"><button class="ib" data-x="close"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>🎓 Academy</b><span class="mu">' + dn + '/' + E.length + '</span></div>' +
+      '<div class="ac-prog"><i style="width:' + (dn / E.length * 100) + '%"></i></div>' +
+      '<p class="ac-intro">' + E.length + ' short episodes in 5 seasons on how memecoins really work, how not to get scammed, and how to manage money. Each has a quiz and often a mission in the game. Finish one to unlock the next (+◎' + REWARD + ' SIM each).</p>' +
+      '<div class="ac-eps">' + E.map((e, i) => { const n = i + 1, d = PR.done[n], u = unlocked(n); return (SEA[n] ? '<div class="ac-sea">' + SEA[n] + '</div>' : '') + '<button class="ac-ep' + (d ? ' done' : '') + (!u ? ' lock' : '') + (PR.cur === n && !d ? ' cur' : '') + '" data-ep="' + n + '"><span class="ac-n">' + (d ? '✓' : u ? n : '🔒') + '</span><span class="ac-em">' + e.em + '</span><span class="ac-t">' + esc(e.t) + '</span></button>'; }).join('') + '</div>';
   }
   let view = null, card = 0;
   function episode(n) {
     const e = E[n - 1], k = e.c.length, q = e.q, qd = PR.quiz[n];
     let body;
     if (card < k) body = '<div class="ac-card" key="' + card + '"><div class="ac-cn">' + (card + 1) + ' / ' + k + '</div><h3>' + esc(e.c[card][0]) + '</h3><p>' + esc(e.c[card][1]) + '</p></div><div class="ac-nav"><button class="sbtn" data-x="prev"' + (card ? '' : ' disabled') + '>Back</button><button class="sbtn ac-go2" data-x="next">' + (card < k - 1 ? 'Next' : 'Quiz →') + '</button></div>';
-    else body = '<div class="ac-card"><div class="ac-cn">Quiz</div><h3>' + esc(q[0]) + '</h3><div class="ac-qs">' + q[1].map((a, i) => '<button data-q="' + i + '" class="' + (qd != null ? (i === q[2] ? 'ok' : i === qd ? 'no' : '') : '') + '"' + (qd != null ? ' disabled' : '') + '>' + esc(a) + '</button>').join('') + '</div>' + (qd != null ? '<p class="ac-why">' + (qd === q[2] ? '✅ ' : '❌ ') + esc(q[3]) + '</p>' : '') + '</div>' +
-      '<div class="ac-mis" id="acMis"></div><div class="ac-nav"><button class="sbtn" data-x="prev">Back</button>' + (PR.done[n] && n < E.length ? '<button class="sbtn ac-go2" data-ep="' + (n + 1) + '">Next episode →</button>' : '<button class="sbtn ac-go2" data-x="play">Go do it ▶</button>') + '</div>';
+    else body = '<div class="ac-card"><div class="ac-cn">Quiz</div><h3>' + esc(q[0]) + '</h3><div class="ac-qs">' + q[1].map((a, i) => '<button data-q="' + i + '" class="' + (qd != null ? (i === q[2] ? 'ok' : i === qd ? 'no' : '') : '') + '"' + (qd != null ? ' disabled' : '') + '>' + esc(a) + '</button>').join('') + '</div>' + (qd != null ? '<p class="ac-why">' + (qd === q[2] ? '✅ ' : '❌ ') + esc(q[3]) + '</p>' + (qd !== q[2] && !e.m && !PR.done[n] ? '<button class="sbtn ac-retry" data-x="retry">Try again</button>' : '') : '') + '</div>' +
+      '<div class="ac-mis" id="acMis"></div><div class="ac-nav"><button class="sbtn" data-x="prev">Back</button>' + (PR.done[n] && n < E.length ? '<button class="sbtn ac-go2" data-ep="' + (n + 1) + '">Next episode →</button>' : e.m ? '<button class="sbtn ac-go2" data-x="play">Go do it ▶</button>' : '') + '</div>';
     return '<div class="ac-top"><button class="ib" data-x="list"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>' + e.em + ' Ep ' + n + '</b><span class="mu">' + esc(e.t) + '</span></div>' +
       '<div class="ac-dots">' + Array.from({ length: k + 1 }, (_, i) => '<i class="' + (i === card ? 'on' : i < card ? 'past' : '') + '"></i>').join('') + '</div>' + body;
   }
   function paintMission(n) {
     const el = $('#acMis'); if (!el) return; const e = E[n - 1], qd = PR.quiz[n] != null, md = missionDone(n) || PR.done[n];
+    if (!e.m) { el.innerHTML = '<div class="ac-mh">🧠 Knowledge check</div><p>' + (PR.done[n] ? 'Done! On to the next one.' : 'Answer the quiz correctly to finish this episode.') + '</p>'; return; }
     el.innerHTML = '<div class="ac-mh">🎯 Mission</div><p>' + esc(e.m[0]) + '</p><div class="ac-ms"><span class="' + (qd ? 'ok' : '') + '">' + (qd ? '✓' : '○') + ' Quiz</span><span class="' + (md ? 'ok' : '') + '">' + (md ? '✓' : '○') + ' Mission</span>' + (PR.done[n] ? '<span class="ok">🎓 Done</span>' : '') + '</div>';
   }
   function render() {
@@ -188,11 +195,12 @@
     const x = b.dataset.x;
     if (x === 'close') close(); else if (x === 'list') { view = null; render(); }
     else if (x === 'next') { card++; render(); } else if (x === 'prev') { if (card) card--; else view = null; render(); }
+    else if (x === 'retry') { delete PR.quiz[view]; save(); render(); }
     else if (x === 'play') { close(); A.toast('🎯', 'Mission', E[view - 1].m[0], 'info'); }
     else if (b.dataset.q != null && view) { PR.quiz[view] = +b.dataset.q; save(); if (+b.dataset.q === E[view - 1].q[2]) A.SND.ok(); else A.SND.err(); render(); checkMission(); }
   });
   // entry points: Trending tab card + Pulse chip
-  const tr = $('#v-trend .pad'); if (tr) { const d = document.createElement('div'); d.className = 'ac-entry'; d.innerHTML = '<button class="glass" id="acOpen"><span>🎓</span><b>Academy</b><em>20 episodes · learn the trenches</em></button><button class="glass" id="clOpen"><span>🎬</span><b>Clips</b><em>launches & hype</em></button>'; tr.insertBefore(d, tr.children[1] || null); d.querySelector('#acOpen').onclick = () => { view = null; open(); }; }
+  const tr = $('#v-trend .pad'); if (tr) { const d = document.createElement('div'); d.className = 'ac-entry'; d.innerHTML = '<button class="glass" id="acOpen"><span>🎓</span><b>Academy</b><em>50 episodes · learn the trenches</em></button><button class="glass" id="clOpen"><span>🎬</span><b>Clips</b><em>launches & hype</em></button>'; tr.insertBefore(d, tr.children[1] || null); d.querySelector('#acOpen').onclick = () => { view = null; open(); }; }
   // first-time nudge
   if (!PR.seen) setTimeout(() => { PR.seen = 1; save(); A.toast('🎓', 'New: Academy', 'Learn how memecoins work: Trending → Academy', 'info'); }, 15000);
 
@@ -208,6 +216,9 @@
     if (t.closest('#cfgJito button[data-v]') && +t.closest('button').dataset.v > 0) flag('jito');
     if (t.closest('#pSeg button[data-k="trk"]')) flag('tracker');
     if (t.closest('.px-sh')) flag('pnl');
+    if (t.closest('#cfgSlip button') || t.closest('#prioRow')) flag('fees');
+    const tb = t.closest('#cfgTp button, #cfgSl button'); if (tb && +tb.dataset.v > 0) flag('plan');
+    if (t.closest('.cl-buy')) flag('clipopen');
   }, true);
   setInterval(() => { const W = A.W; if (A.OPEN && document.querySelector('#shAudit')) { const r = document.querySelector('#shAudit').getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) flag('audit'); } if ((W.track || []).length > 6) flag('track'); }, 3000);
   const pTrack = A.W.track ? A.W.track.length : 0; setInterval(() => { if ((A.W.track || []).length > pTrack) flag('track'); }, 4000);
@@ -243,12 +254,15 @@
   P.onFill = function (c, side, sol, tok) {
     if (oFill) oFill.apply(this, arguments);
     const p = A.W.pos[c.id]; if (!p) return;
-    if (side) { if (!p.ent || p.tok - tok < 1) { p.ent = snap(c); } flag('buy'); const e = p.ent; if (e.ins < 10 && e.sn < 15) flag('cleanbuy'); if (Sim.quoteBuy && sol > 0) { const q = Sim.quoteBuy(c, sol), mc = Sim.mcUsd(c); } A.saveW(); }
-    else if (p.tok <= 0) { const e = p.ent; if (e && !flagsOf(e).length && (p.tp || p.sl || PR.flags.tpsl)) flag('roundtrip'); else if (PR.flags.tpsl && PR.flags.cleanbuy) flag('roundtrip'); if (e && (p.out - p.in < 0 || flagsOf(e).length)) { const d = { ent: e, in: p.in, out: p.out }; setTimeout(() => postMortem(c, d), 900); } p.ent = null; A.saveW(); }
+    if (side) { if (!p.ent || p.tok - tok < 1) { p.ent = snap(c); } flag('buy'); if (sol <= 0.1001) flag('smallbuy'); const e = p.ent; if (e.ins < 10 && e.sn < 15) flag('cleanbuy'); if (Sim.quoteBuy && sol > 0) { const q = Sim.quoteBuy(c, sol), mc = Sim.mcUsd(c); } A.saveW(); }
+    else if (p.tok <= 0) { flag('closed'); const e = p.ent; if (e && !flagsOf(e).length && (p.tp || p.sl || PR.flags.tpsl)) flag('roundtrip'); else if (PR.flags.tpsl && PR.flags.cleanbuy) flag('roundtrip'); if (e && (p.out - p.in < 0 || flagsOf(e).length)) { const d = { ent: e, in: p.in, out: p.out }; setTimeout(() => postMortem(c, d), 900); } p.ent = null; A.saveW(); }
   };
   window.Pro = P;
   // rugs on coins you hold
   const oEv = Sim.onEvent; Sim.onEvent = function (c, icon, text) { if (oEv) oEv.apply(this, arguments); try { if ((icon === '⚠️' || /rugged|dumping together/i.test(text)) && !Sim.isMine(c)) { const p = A.W.pos[c.id]; if (p && p.tok > 0 && p.ent && !p._pmShown) { p._pmShown = 1; setTimeout(() => { A.toast('🚩', '$' + c.sym + ' just got rugged', 'Tap to see what warned you', 'bad'); postMortem(c, { ent: p.ent, in: p.in, out: p.out + (p.tok > 0 ? Sim.quoteSell(c, p.tok) : 0) }, 'rugged while holding'); }, 400); } } } catch (e) { } };
+  const vp = document.getElementById('v-port'); if (vp) new MutationObserver(() => { if (vp.classList.contains('on')) flag('activity'); }).observe(vp, { attributes: true, attributeFilter: ['class'] });
+  let twN = (A.W.x && A.W.x.tweets || []).length; setInterval(() => { const n = (A.W.x && A.W.x.tweets || []).length; if (n > twN) flag('post'); twN = n; }, 2000);
+  if (A.life && A.life.post) { const op = A.life.post; A.life.post = function () { flag('post'); return op.apply(this, arguments); }; }
   // impact mission: watch the quote line
   setInterval(() => { const el = document.getElementById('tPrev') || document.querySelector('.tq'); if (!el || !A.OPEN) return; const m = (el.textContent || '').match(/impact\s*([\d.]+)%/i); if (m && +m[1] < 5 && A.W.pos[A.OPEN.id] && A.W.pos[A.OPEN.id].tok > 0) flag('smallimpact'); }, 1500);
   // chat & clips & bubble flags come from their modules via Academy.flag

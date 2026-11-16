@@ -555,6 +555,7 @@
   }
 
   function stepCoin(c, dt) {
+    if (c.mir) return mirStep(c, dt);
     const age = (Sim.t - c.born) / 1000;
     c.boost *= Math.exp(-dt / 25);
     c.exc = (c.exc || 0) * Math.exp(-dt / 6);
@@ -620,7 +621,7 @@
   }
   Sim.step = function (dt) {
     inflow(dt);
-    if (Sim.t >= Sim.nextSpawn) { spawnNext(); Sim.nextSpawn = Sim.t + R(700, 2600) / Math.max(.3, Sim.act * Sim.heat * (ERA[Sim.era] || ERA.now).spawn); }
+    if (Sim.t >= Sim.nextSpawn) { if (!Sim.mirror) spawnNext(); Sim.nextSpawn = Sim.t + R(700, 2600) / Math.max(.3, Sim.act * Sim.heat * (ERA[Sim.era] || ERA.now).spawn); }
     const L = Sim.list;
     for (let i = 0; i < L.length; i++) { const c = L[i]; if (!c.dead) stepCoin(c, dt); if (c.rq.length) runReplies(c); }
     if (L.length > MAX_COINS) {
@@ -772,14 +773,16 @@
       case 'buy': {
         if (!c) return { fail: 'gone' };
         const q = Sim.quoteBuy(c, m.sol); if (m.min && q < m.min) return { fail: 'slip', q };
-        const r = Sim.userBuy(c, m.sol, { sandwich: m.sw, maxPct: m.mp || 0, w: m.w });
+        const b0 = c.vSol, r = Sim.userBuy(c, m.sol, { sandwich: m.sw, maxPct: m.mp || 0, w: m.w });
+        if (c.mir) { c.offS = (c.offS || 0) + (c.vSol - b0); reactTo(c, m.sol); }
         if (m.w) phAdd(c.id, m.w); if (c.devW && c.devW === m.w) c.mineTok = (c.mineTok || 0) + r.tok;
         return { tok: r.tok, q, sw: r.sw ? { profit: r.sw.profit } : null };
       }
       case 'sell': {
         if (!c) return { fail: 'gone' };
         const q = Sim.quoteSell(c, m.tok); if (m.min && q < m.min) return { fail: 'slip', q };
-        const r = Sim.userSell(c, m.tok, m.w);
+        const s0 = c.vSol, r = Sim.userSell(c, m.tok, m.w);
+        if (c.mir) c.offS = (c.offS || 0) + (c.vSol - s0);
         if (m.w && m.all) phDel(c.id, m.w); if (c.devW && c.devW === m.w) c.mineTok = Math.max(0, (c.mineTok || 0) - m.tok);
         return { sol: r.sol };
       }
@@ -790,9 +793,60 @@
       case 'upd': if (c && !c.rug) Sim.userUpdate(c, m.likes); return { ok: 1 };
       case 'claim': if (c) c.fee = 0; return { ok: 1 };
       case 'pool': Sim.addPool(m.t); return { ok: 1 };
+      case 'mir': (m.e || []).forEach(e => { try { Sim.mirrorEvent(e); } catch (x) { } }); return { ok: 1 };
     }
     return { fail: 'bad' };
   };
+  // ---------- MIRROR MARKET: real pump.fun coins & trades replayed into our curves ----------
+  // Every real buy/sell is applied with its real size. Our curve = real curve + the SOL that you (and the bots
+  // reacting to you) put in or took out (c.offS), so your trades move the price and the impact persists.
+  Sim.mirror = false; Sim.MIR = {};
+  const SNIPE_MS = 2500;
+  function snapTo(c, vs, vt) { if (!(vs > 0 && vt > 0)) return; c.rvs = vs; c.rvt = vt; const k = vs * vt; c.vSol = Math.max(1e-6, vs + (c.offS || 0)); c.vTok = k / c.vSol; c.realSol = Math.max(0, c.vSol - V_SOL0); }
+  function mirCreate(e) {
+    if (Sim.MIR[e.m]) return Sim.coins.get(Sim.MIR[e.m]);
+    const c = spawn({ name: String(e.n || 'Unknown').slice(0, 32), sym: String(e.y || '???').slice(0, 12).toUpperCase(), user: true, real: true, img: null });
+    c.mir = true; c.mint = e.m; c.ca = e.m; c.dev = e.d || addr(); c.uri = e.u || ''; c.rugAt = Infinity; c.offS = 0; c.rx = []; c.lastRT = Sim.t; c.born = Sim.t;
+    c.vSol = V_SOL0; c.vTok = V_TOK0; c.realSol = 0; c.candles = [[Math.floor(Sim.t / 1000), Sim.mc(c), Sim.mc(c), Sim.mc(c), Sim.mc(c), 0]]; c.m0 = Sim.mc(c); c.ath = c.m0;
+    if (e.tk > 0) { hAdd(c, c.dev, e.tk, 'dev'); const h = c.hi.get(c.dev); if (h) h.cost = e.s || 0; }
+    if (e.vs > 0) snapTo(c, e.vs, e.vt); else if (e.s > 0) doBuy(c, e.s);
+    if (e.s > 0) rec(c, 1, c.dev, e.s, e.tk || 0, 'dev');
+    c.devTok0 = e.tk || 0; Sim.MIR[e.m] = c.id; c.keepUntil = Sim.t + 120000;
+    return c;
+  }
+  function mirTrade(e) {
+    const id = Sim.MIR[e.m], c = id && Sim.coins.get(id); if (!c) return;
+    const w = e.w || addr(), side = e.b ? 1 : 0, prev = c.rvs || c.vSol - (c.offS || 0);
+    let sol = e.s > 0 ? e.s : Math.abs((e.vs || prev) - prev), tok = e.tk || 0;
+    let ty = w === c.dev ? 'dev' : (c.hi.get(w) || {}).ty || (Sim.t - c.born < SNIPE_MS ? 'sniper' : 'retail');
+    if (side) { if (tok > 0) { hAdd(c, w, tok, ty); const h = c.hi.get(w); if (h) h.cost = (h.cost || 0) + sol; } }
+    else { const bal = c.holders.get(w) || 0; if (bal > 0) hSub(c, w, Math.min(bal, tok || bal)); }
+    if (e.vs > 0) snapTo(c, e.vs, e.vt); else if (side) doBuy(c, sol); else if (tok > 0) doSell(c, tok);
+    if (sol > 0 || tok > 0) rec(c, side, w, sol, tok, ty);
+    c.lastRT = Sim.t;
+    if (!side && w === c.dev && !c.rug) { const left = c.holders.get(c.dev) || 0; c.devSells = (c.devSells || 0) + 1;
+      if (c.devTok0 > 0 && left < c.devTok0 * 0.2) { c.rug = true; ev(c, '⚠️', 'Dev dumped their bag (real on-chain sell)'); burst(c, 'rug', 3); }
+      else ev(c, '👨‍💻', 'Dev sold some tokens'); }
+  }
+  Sim.mirrorEvent = e => { if (e.k === 'c') mirCreate(e); else if (e.k === 't') mirTrade(e); };
+  // bots that react to YOUR trades on real coins (momentum chasers who buy after you and dump on you)
+  function reactTo(c, sol) {
+    if (!c.mir) return; const liq = Math.max(1, c.vSol), push = sol / liq;
+    if (push < 0.004 && sol < 0.3) return;
+    const n = Math.min(6, poisson(Math.min(4, push * 60 + sol * 0.4)));
+    for (let i = 0; i < n; i++) { const w = addr(), b = R(0.05, 0.25) * Math.max(0.3, sol), at = Sim.t + R(800, 6000); c.rx.push({ at, s: 1, w, sol: b }); c.rx.push({ at: at + R(6000, 45000), s: 0, w, fr: R(0.7, 1) }); }
+    c.rx.sort((a, b) => a.at - b.at);
+  }
+  function mirStep(c, dt) {
+    while (c.rx && c.rx.length && c.rx[0].at <= Sim.t) {
+      const r = c.rx.shift(), before = c.vSol;
+      if (r.s) buyAs(c, r.w, r.sol, 'momentum'); else { const bal = c.holders.get(r.w) || 0; if (bal > 0) sellAs(c, r.w, bal * r.fr); }
+      c.offS = (c.offS || 0) + (c.vSol - before);
+    }
+    const quiet = Sim.t - (c.lastRT || c.born);
+    if (!c.dead && quiet > 420000 && Sim.t > (c.keepUntil || 0) && !kept(c) && !(c.rx && c.rx.length)) c.dead = true;
+  }
+
   Sim.net = null; // set by the multiplayer layer
   Sim.cmd = m => Sim.net ? Sim.net(m) : Promise.resolve(Sim.exec(m));
 
@@ -830,7 +884,7 @@
     };
     return D(root);
   }
-  const STATE = ['coins', 'list', 'pool', 'poolUnused', 'poolKeys', 'solUsd', 'liveSol', 'act', 'chat', 'mode', 'era', 'heat', 'rep', 'devName', 'launched', 'nextSpawn', 'txWindow', 'spawnTimes', 'PW', 'BY', 'DEVS', 'PL', 'ph', 't'];
+  const STATE = ['mirror', 'MIR', 'coins', 'list', 'pool', 'poolUnused', 'poolKeys', 'solUsd', 'liveSol', 'act', 'chat', 'mode', 'era', 'heat', 'rep', 'devName', 'launched', 'nextSpawn', 'txWindow', 'spawnTimes', 'PW', 'BY', 'DEVS', 'PL', 'ph', 't'];
   Sim.dump = () => { const S = {}; STATE.forEach(k => S[k] = Sim[k]); return graph({ S, cmId, tradeId, v: 1 }); };
   Sim.load = d => {
     const o = ungraph(d); STATE.forEach(k => { if (o.S[k] !== undefined) Sim[k] = o.S[k]; });

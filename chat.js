@@ -140,7 +140,7 @@
     const mm = e.target.closest('.ch-m.me'); if (mm && e.detail >= 2) { const id = +mm.dataset.id; if (id) B.remove('messages', { eq: { id } }).catch(() => { }); }
   });
   function sendMsg() {
-    const inp = $('#chTxt', P), txt = inp.value.trim(); if (!txt || !view.room) return; inp.value = ''; A.hap(8); A.SND.tap();
+    const inp = $('#chTxt', P), txt = inp.value.trim(); if (!txt || !view.room) return; inp.value = ''; A.hap(8); A.SND.tap(); if (window.Academy) Academy.flag('chat');
     if (view.room.indexOf('bot:') === 0) return botDm(view.room.slice(4), txt);
     const r = view.room, o = room(r).other;
     const row = { room: r, sender: uid, txt }; if (r.indexOf('dm:') === 0) { if (!o) return A.toast('⚠️', 'Still loading this chat', null, 'bad'); row.recipient = o.id; }

@@ -67,3 +67,7 @@ body{-webkit-touch-callout:none;overscroll-behavior:none;-webkit-text-size-adjus
 .ios .mini-in{font-size:16px!important}
 .ios #chat{bottom:0}
 .standalone #hdr{padding-top:calc(var(--sat) + 6px)}
+
+/* idle sleep: freeze all decorative motion */
+body.idle .sk-branch,body.idle .sk-moon,body.idle .sk-logo,body.idle .mn-rays,body.idle .mn-logo,body.idle .card.hot::before,body.idle .big-btn::after,body.idle .bal::before,body.idle #nav .rk::before,body.idle .tp-in,body.idle .live i,body.idle .ring.grad,body.idle .lg-mark,body.idle .eq b,body.idle .mir-chip i,body.idle .addbox::before,body.idle .empty .e,body.idle .orb,body.idle .pbar b{animation-play-state:paused!important}
+body.idle #skPetals{opacity:.85}

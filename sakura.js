@@ -92,6 +92,7 @@
   function fill() { const n = want(); while (P.length < n) P.push(mk(false)); if (P.length > n) P.length = n; P.sort((a, b) => a.z - b.z); }
   function frame(t) {
     if (!mo() || !want() || document.hidden) { run = false; cx.clearRect(0, 0, Wd, Hd); return; }
+    if (window.IDLE) { run = false; return; } // frozen while idle (keeps last frame)
     if (document.body.classList.contains('shfull') || (window.QUAL !== 'hi' && t - last < 30)) { requestAnimationFrame(frame); return; }
     const dt = Math.min(3, (t - (last || t)) / 16.67); last = t;
     if (t > nextGust) { gust = (rnd() < .5 ? -1 : 1) * (1.2 + rnd() * 2.2); nextGust = t + 7000 + rnd() * 9000; scene.style.setProperty('--g', gust.toFixed(2)); scene.classList.remove('gust'); void scene.offsetWidth; scene.classList.add('gust'); }
@@ -213,5 +214,5 @@
   function bloom() { scene.classList.remove('bloom'); void scene.offsetWidth; scene.classList.add('bloom'); }
   bloom(); start();
   setTimeout(() => { if (mo() && lg) { const r = lg.getBoundingClientRect(); petals(r.left + r.width / 2, r.top + r.height / 2, 26, { dir: 0.6, spread: 1.6, sp: 7, up: 0.5, life: 110 }); } }, 900);
-  setInterval(() => { if (!run) start(); }, 2000);
+  setInterval(() => { if (!run && !window.IDLE) start(); }, 2000);
 })();

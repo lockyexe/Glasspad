@@ -286,7 +286,7 @@
       '<div class="mid"><div class="r1"><b class="nm">' + esc(c.name) + '</b><span class="sy">' + esc(c.sym) + '</span><span class="badge"></span></div>' +
       '<div class="r2">' + soc + '<span class="k">V</span><b class="vo"></b><span class="k">👥</span><b class="ho"></b><span class="k">TX</span><b class="tx"></b></div>' +
       '<div class="cxs"><i class="cx t10"></i><i class="cx dv"></i><i class="cx sn"></i><i class="cx ins"></i><i class="cx fk"></i><i class="cx bv"></i><i class="cx cn"></i></div></div>' +
-      '<div class="rt"><div><span class="mcl">MC</span><span class="mc"></span></div><span class="pct"></span><button class="qb">⚡ <span class="qa"></span></button></div><i class="pbar"><b></b></i>';
+      '<div class="rt"><svg class="spk" viewBox="0 0 64 20" preserveAspectRatio="none"><polyline/></svg><div><span class="mcl">MC</span><span class="mc"></span></div><span class="pct"></span><button class="qb">⚡ <span class="qa"></span></button></div><i class="pbar"><b></b></i>';
     el._r = { ring: $('.ring', el), badge: $('.badge', el), age: $('.age', el), ho: $('.ho', el), tx: $('.tx', el), vo: $('.vo', el), dv: $('.dv', el), mc: $('.mc', el), pct: $('.pct', el), qa: $('.qa', el), cn: $('.cn', el), fk: $('.fk', el), bv: $('.bv', el), t10: $('.t10', el), sn: $('.sn', el), ins: $('.ins', el), pb: $('.pbar b', el) };
     return el;
   }
@@ -315,8 +315,9 @@
     const mt = fUsd(m);
     if (r.mc._t !== mt) { if (r.mc._v != null && Math.abs(m - r.mc._v) / r.mc._v > 0.002) flashEl(r.mc, m > r.mc._v); r.mc._v = m; setT(r.mc, mt); }
     setT(r.pct, fPct(ch)); setCls(r.pct, 'up', ch >= 0); setCls(r.pct, 'dn', ch < 0);
+    if (!el._spT || Date.now() - el._spT > 2500) { el._spT = Date.now(); const cd = c.candles, n = cd.length; if (n > 2 && el._spN !== n + ':' + cd[n - 1][4]) { el._spN = n + ':' + cd[n - 1][4]; const L = cd.slice(-32); let lo = Infinity, hi = -Infinity; for (const k of L) { if (k[4] < lo) lo = k[4]; if (k[4] > hi) hi = k[4]; } const sp = hi - lo || 1; const pl = el._spl || (el._spl = el.querySelector('.spk polyline')); if (pl) pl.setAttribute('points', L.map((k, i) => (i / (L.length - 1) * 64).toFixed(1) + ',' + (18 - (k[4] - lo) / sp * 16).toFixed(1)).join(' ')); if (pl) pl.parentNode.setAttribute('class', 'spk ' + (L[L.length - 1][4] >= L[0][4] ? 'u' : 'd')); } }
     setT(r.qa, String(CFG.quick));
-    const b = (c.rug ? '<span class="tag rug">' + (c.cto ? 'CTO' : 'RUGGED') + '</span>' : c.grad ? '<span class="tag grad">🎓</span>' : (W.pos[c.id] && W.pos[c.id].tok > 0 ? '<span class="tag ok">HOLDING</span>' : '')) + (c.dexPaid ? '<span class="tag dx">💊</span>' : '') + (c.boosts ? '<span class="tag bst">⚡' + c.boosts + '</span>' : '') + (c.cto && !c.rug ? '<span class="tag ok">CTO</span>' : '');
+    const b = (c.rug ? '<span class="tag rug">' + (c.cto ? 'CTO' : 'RUGGED') + '</span>' : c.grad ? '<span class="tag grad">🎓</span>' : (W.pos[c.id] && W.pos[c.id].tok > 0 ? '<span class="tag ok">HOLDING</span>' : '')) + (c.mir ? '<span class="tag live">LIVE</span>' : '') + (c.dexPaid ? '<span class="tag dx">💊</span>' : '') + (c.boosts ? '<span class="tag bst">⚡' + c.boosts + '</span>' : '') + (c.cto && !c.rug ? '<span class="tag ok">CTO</span>' : '');
     if (r.badge._h !== b) { r.badge._h = b; r.badge.innerHTML = b; }
     setCls(el, 'hot', !c.rug && Sim.t - c.born > 45000 && Sim.change(c, 30) > 25);
     setCls(el, 'rug', c.rug); setCls(el, 'dead', c.dead);
@@ -380,7 +381,8 @@
     const r = el._r; const ch = Sim.change(c, 300);
     setT(r.rank, String(el._rank)); setT(r.mc, fUsd(Sim.mcUsd(c))); setT(r.vo, fUsd(Sim.volSince(c, 300) * Sim.solUsd));
     const s = spark(c, 60); r.path.setAttribute('d', s.d); r.path.style.stroke = s.up ? 'var(--gr)' : 'var(--rd)';
-    setT(r.pct, fPct(ch)); setCls(r.pct, 'up', ch >= 0); setCls(r.pct, 'dn', ch < 0); setT(r.qa, String(CFG.quick));
+    setT(r.pct, fPct(ch)); setCls(r.pct, 'up', ch >= 0); setCls(r.pct, 'dn', ch < 0);
+    if (!el._spT || Date.now() - el._spT > 2500) { el._spT = Date.now(); const cd = c.candles, n = cd.length; if (n > 2 && el._spN !== n + ':' + cd[n - 1][4]) { el._spN = n + ':' + cd[n - 1][4]; const L = cd.slice(-32); let lo = Infinity, hi = -Infinity; for (const k of L) { if (k[4] < lo) lo = k[4]; if (k[4] > hi) hi = k[4]; } const sp = hi - lo || 1; const pl = el._spl || (el._spl = el.querySelector('.spk polyline')); if (pl) pl.setAttribute('points', L.map((k, i) => (i / (L.length - 1) * 64).toFixed(1) + ',' + (18 - (k[4] - lo) / sp * 16).toFixed(1)).join(' ')); if (pl) pl.parentNode.setAttribute('class', 'spk ' + (L[L.length - 1][4] >= L[0][4] ? 'u' : 'd')); } } setT(r.qa, String(CFG.quick));
   }
   function renderTrend() {
     const arr = Sim.list.filter(c => !c.dead);
@@ -884,14 +886,14 @@
   let chartRaf = 0, chartLast = 0, chartSig = '', chartDirty = false;
   ['pointerdown', 'pointermove', 'pointerup', 'click', 'touchmove'].forEach(k => document.addEventListener(k, e => { if (OPEN && e.target.closest && e.target.closest('.chartwrap')) chartDirty = true; }, { passive: true, capture: true }));
   if (window.ResizeObserver) new ResizeObserver(() => { const cv = $('#chart'); if (cv) cv._r = null; chartDirty = true; }).observe($('#chart'));
-  function startChart() { if (!chartRaf) chartRaf = requestAnimationFrame(chartLoop); }
+  function startChart() { if (!chartRaf) chartRaf = setTimeout(() => chartLoop(performance.now()), 16); }
   function chartLoop(ts) {
     chartRaf = 0; if (!OPEN) return;
     const c = OPEN, cd = c.candles, lc = cd.length ? cd[cd.length - 1] : null;
     const sig = cd.length + ':' + (lc ? lc[4] : 0) + ':' + TF + ':' + c.hk.length + ':' + (W.pos[c.id] ? W.pos[c.id].tok : 0);
     const idle = window.QUAL === 'lo' ? 500 : window.QUAL === 'hi' ? 160 : 260;
     if ((sig !== chartSig && ts - chartLast > (window.QUAL === 'lo' ? 90 : 45)) || chartDirty || ts - chartLast > idle) { chartLast = ts; chartSig = sig; chartDirty = false; drawChart(); }
-    chartRaf = requestAnimationFrame(chartLoop);
+    chartRaf = setTimeout(() => requestAnimationFrame(chartLoop), window.IDLE ? 900 : window.QUAL === 'lo' ? 120 : window.QUAL === 'hi' ? 33 : 66);
   }
   function drawChart() {
     const c = OPEN, cv = $('#chart'); if (!c || !cv) return;
@@ -983,7 +985,9 @@
   Sim.onEvent = (c, icon, text) => { if (W.pos[c.id] && W.pos[c.id].tok > 0) toast(icon, c.sym + ': ' + text, null, icon === '⚠️' ? 'bad' : 'info'); };
 
   // ---------- render loop ----------
+  let idleSkip = 0;
   function renderView(full) {
+    if (!full && window.IDLE && (++idleSkip % 3)) return;
     if (OPEN && !full && document.body.classList.contains('shfull')) { renderBal(false); return; }
     if (VIEW === 'pulse') renderPulse(); else if (VIEW === 'trend') renderTrend(); else if (VIEW === 'port') renderPort(); else if (VIEW === 'set') renderSettings();
     else if (App.life) App.life.render(VIEW, full);

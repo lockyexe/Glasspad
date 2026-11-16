@@ -14,7 +14,7 @@
   let salt = 0, stepN = 0, frameN = 0, lastF = 0, FB = [], PQ = [], CQ = [], seenCmd = new Set(), PEND = {}, LATE = {}, cseq = 0;
   let playT = 0, hostT = 0, hostLast = 0, snapWanted = false, snapBusy = false, lastSnap = 0, syncing = false, early = [], joinAt = 0;
   let H = {};
-  const HK = ['solUsd', 'liveSol', 'heat', 'act', 'mode', 'chat', 'era'];
+  const HK = ['solUsd', 'liveSol', 'heat', 'act', 'mode', 'chat', 'era', 'mirror'];
   MP.on = false; MP.host = false; MP.online = () => pres.length;
   MP.status = () => !MP.on ? 'offline' : syncing ? 'syncing' : MP.host ? 'host' : 'live';
 

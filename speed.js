@@ -24,6 +24,11 @@
     window.QLOG = (window.QLOG || []).concat([q + ' ' + (why || '')]);
   }
   window.setQual = apply;
+  // ---- idle sleep: no touches for 12s → freeze decoration, render less (the market keeps running) ----
+  let lastIn = Date.now(); window.IDLE = false;
+  const wake = () => { lastIn = Date.now(); if (window.IDLE) { window.IDLE = false; document.body && document.body.classList.remove('idle'); if (window.Sakura && Sakura.retier) Sakura.retier(); } };
+  ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'].forEach(k => addEventListener(k, wake, { passive: true, capture: true }));
+  setInterval(() => { if (!window.IDLE && Date.now() - lastIn > 12000 && document.body) { window.IDLE = true; document.body.classList.add('idle'); } }, 2000);
 
   // ---- governor: sample ~2s of frames every few seconds ----
   let upTried = 0, goodRuns = 0;

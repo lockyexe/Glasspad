@@ -180,3 +180,26 @@
 .cl-heart{position:absolute;font-size:80px;color:#ff2d55;transform:translate(-50%,-50%);animation:clHeart .8s ease forwards;pointer-events:none;z-index:4}
 @keyframes clHeart{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}30%{transform:translate(-50%,-50%) scale(1.2);opacity:1}100%{transform:translate(-50%,-90%) scale(1);opacity:0}}
 .q-lo .clip.on .cl-coin{animation:clPop .5s ease .1s forwards}
+.ac-sea{margin:14px 2px 2px;font-size:11.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--a1)}
+.ac-retry{margin-top:8px;width:100%}
+
+.tag.live{background:rgba(255,51,85,.18);color:#ff7a93;letter-spacing:.5px;font-weight:900}
+.mir-chip{display:inline-flex;align-items:center;gap:5px}
+.mir-chip.on{color:#fff;border-color:rgba(255,51,85,.5);background:rgba(255,51,85,.14)}
+.mir-chip.on i{width:6px;height:6px;border-radius:50%;background:#ff3355;box-shadow:0 0 8px #ff3355;animation:blink 1.2s infinite}
+
+/* ===================== tuff ===================== */
+#tape{position:relative;z-index:4;height:26px;overflow:hidden;border-bottom:1px solid var(--st2);background:rgba(0,0,0,.25);-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.tp-in{position:absolute;left:0;top:0;height:26px;display:flex;align-items:center;white-space:nowrap;animation:tpRun 40s linear infinite;will-change:transform}
+@keyframes tpRun{to{transform:translateX(-50%)}}
+.tp-it{font-size:11.5px;font-weight:700;padding:0 4px;cursor:pointer}.tp-it.up{color:var(--gr)}.tp-it.dn{color:var(--rd)}
+.tp-in i{font-style:normal;color:var(--mu2);padding:0 8px}
+.q-lo .tp-in{animation-duration:60s!important}
+.card .rt{position:relative}
+.spk{width:64px;height:20px;display:block;margin:0 0 2px auto;overflow:visible}
+.spk polyline{fill:none;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke:var(--mu)}
+.spk.u polyline{stroke:var(--gr)}.spk.d polyline{stroke:var(--rd)}
+.q-hi .spk.u polyline{filter:drop-shadow(0 0 3px rgba(34,240,160,.6))}
+.card .pct{padding:2px 7px;border-radius:7px;font-weight:800}
+.card .pct.up{background:rgba(34,240,160,.12)}.card .pct.dn{background:rgba(255,77,109,.12)}
+.card .mc{font-weight:900;letter-spacing:-.3px}
