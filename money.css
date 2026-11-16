@@ -1,0 +1,63 @@
+/* ===================== 💵 MONEY MODE ===================== */
+.th-money{--a1:#2ee68a;--a1r:46,230,138;--a2:#ffcf3a;--a2r:255,207,58;--pink:#b8ffd6;--o1:#13a85a;--o2:#c99a12;--o3:#22d37a;
+  --bg1:#0b3320;--panel:#08160f;--deepr:7,22,14;--buy1:#5cf5a6;--buy2:#12b866;--buyr:30,210,120;--buytx:#03140a;--ring:#2ee68a;
+  --tx:#effff5;--mu:#8fb3a0;--mu2:#5d7d6c;--st:rgba(140,255,190,.15);--st2:rgba(140,255,190,.08);
+  --gr:#3dffa0;--rd:#ff5a6a;--gold:#ffd24a;--spring:cubic-bezier(.34,1.56,.64,1);--soft:cubic-bezier(.22,.9,.25,1)}
+.mn-scene,.mn-logo,.mn-lbl{display:none}
+.th-money .mn-scene{display:block}
+.th-money #skPetals{display:block}
+.th-money .sk-only{display:flex}
+.th-money .sk-lbl{display:none}.th-money .mn-lbl{display:inline}
+.th-money #bg{background:radial-gradient(80% 45% at 50% -5%,#145c36 0%,#0a2a19 45%,#05120b 80%,#030a06 100%)}
+.th-money .gridbg{opacity:.18;background-image:linear-gradient(rgba(120,255,180,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,255,180,.05) 1px,transparent 1px)}
+.th-money .orb{opacity:.28}
+.mn-scene{position:absolute;inset:0;z-index:2;pointer-events:none}
+.mn-rays{position:absolute;left:-20%;right:-20%;top:-10%;height:70%;opacity:.35;
+  background:conic-gradient(from 180deg at 50% 0%,transparent 0deg,rgba(120,255,180,.16) 8deg,transparent 16deg,transparent 26deg,rgba(255,210,74,.12) 32deg,transparent 40deg,transparent 52deg,rgba(120,255,180,.14) 58deg,transparent 66deg,transparent 294deg,rgba(120,255,180,.14) 302deg,transparent 310deg,transparent 320deg,rgba(255,210,74,.12) 328deg,transparent 336deg,transparent 344deg,rgba(120,255,180,.16) 352deg,transparent 360deg);
+  -webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent);transform-origin:50% 0;animation:mnRays 14s ease-in-out infinite alternate;will-change:transform}
+@keyframes mnRays{to{transform:rotate(4deg) scale(1.05)}}
+.mn-sign{position:absolute;right:-6vw;top:12vh;font:900 58vw/1 Inter,Arial;color:rgba(120,255,180,.035);transform:rotate(12deg)}
+.mn-stacks{position:absolute;left:0;right:0;bottom:0;width:100%;height:16vh;opacity:.55}
+/* glass */
+.th-money .glass{background:linear-gradient(145deg,rgba(140,255,190,.09),rgba(255,255,255,.02) 60%,rgba(255,210,74,.04));border-color:rgba(140,255,190,.15);box-shadow:inset 0 1px 0 rgba(220,255,235,.12),0 12px 30px -12px rgba(0,10,4,.8)}
+.th-money .glassbar{background:rgba(7,22,14,.6)}
+.th-money #sheet{background:linear-gradient(180deg,#0b2416,#050e09)!important}
+.th-money .mbox{background:linear-gradient(160deg,rgba(14,46,28,.97),rgba(6,18,11,.98));border-color:rgba(140,255,190,.2)}
+.th-money h1{background:linear-gradient(100deg,#fff 5%,#9dffc9 45%,#ffd24a);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+/* logo: spinning gold coin (transform only) */
+.th-money .lg-mark{background:none;box-shadow:none;animation:none}
+.th-money .lg-mark::after,.th-money .sk-logo{display:none!important}
+.th-money .mn-logo{display:grid;place-items:center;position:absolute;inset:0;border-radius:50%;font:900 15px/1 Inter,Arial;color:#6b4700;
+  background:radial-gradient(circle at 35% 30%,#fff3b0,#ffcf3a 50%,#b37a00);box-shadow:0 0 14px rgba(255,207,58,.6);animation:mnFlip 3.2s ease-in-out infinite}
+@keyframes mnFlip{0%,70%{transform:rotateY(0)}85%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
+.th-money .logo b{color:#d8ffe8}
+/* balance pill: cash look */
+.th-money .bal{background:linear-gradient(135deg,rgba(46,230,138,.38),rgba(255,207,58,.22));border-color:rgba(200,255,225,.3);box-shadow:0 0 22px -6px rgba(46,230,138,.85)}
+.th-money .solic{background:linear-gradient(135deg,#ffe27a,#c99a12);color:#4a3200}
+.th-money .bal.pop{animation:mnPop .7s var(--spring)}
+@keyframes mnPop{0%{transform:scale(1)}30%{transform:scale(1.22);filter:brightness(1.6)}60%{transform:scale(.95)}100%{transform:none}}
+/* buttons */
+.th-money .big-btn.buy{background:linear-gradient(135deg,#7dffbc,#1fd17a 45%,#0f9c57)}
+.th-money .big-btn.buy::before{content:"$";position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(-12deg);font-size:30px;font-weight:900;opacity:.18}
+.th-money .seg-ind{transition:left .55s var(--spring),width .55s var(--spring);background:linear-gradient(135deg,rgba(46,230,138,.3),rgba(255,207,58,.12));border-color:rgba(160,255,200,.3)}
+.th-money .nav-ind{transition:left .6s var(--spring),width .6s var(--spring);background:linear-gradient(135deg,rgba(46,230,138,.45),rgba(255,207,58,.2));box-shadow:0 0 24px -4px rgba(46,230,138,.85)}
+.th-money #nav{border-color:rgba(140,255,190,.18)}
+.th-money #nav button.on svg{filter:drop-shadow(0 0 8px rgba(46,230,138,.95))}
+.th-money #nav button.nlaunch .rk{background:linear-gradient(135deg,#ffe27a,#ffcf3a 45%,#1fd17a);box-shadow:0 8px 24px -6px rgba(255,207,58,.8),0 0 0 4px rgba(7,22,14,.9)}
+.th-money #nav button.nlaunch .rk svg{stroke:#123}
+.th-money .minis button.on{background:linear-gradient(135deg,rgba(46,230,138,.42),rgba(255,207,58,.2));border-color:rgba(160,255,200,.5)}
+.th-money .card.hot{border-color:rgba(255,207,58,.5);box-shadow:0 0 0 1px rgba(255,207,58,.16),0 0 26px -8px rgba(255,207,58,.7)}
+.th-money .card.enter{animation:mnCard .6s var(--soft) both}
+@keyframes mnCard{0%{opacity:0;transform:translateY(18px) scale(.95)}60%{opacity:1}100%{transform:none}}
+.th-money .toast{border-color:rgba(140,255,190,.22);animation:mnToast .6s var(--spring) both}
+@keyframes mnToast{0%{opacity:0;transform:translateY(-40px) scale(.8)}100%{opacity:1;transform:none}}
+.th-money #modal.on .mbox,.th-money #ov.on .mbox{animation:skModal .55s var(--spring) both}
+.th-money .live i{background:#ffd24a;box-shadow:0 0 10px #ffd24a}
+.th-money .ripple{background:rgba(180,255,210,.4)}
+/* tap: gold $ pops */
+.mn-tap{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;font:900 18px/1 Inter,Arial;color:#5a3c00;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffcf3a 55%,#b37a00);box-shadow:0 0 12px rgba(255,207,58,.7)}
+/* tiers */
+.q-lo .mn-rays,.q-lo .mn-logo{animation:none!important}
+.q-lo .mn-rays{opacity:.2}
+.th-money.q-mid #bg,.th-money.q-lo #bg{background:radial-gradient(60% 35% at 50% 0%,rgba(46,230,138,.22),transparent 70%),radial-gradient(80% 45% at 50% -5%,#145c36 0%,#0a2a19 45%,#05120b 80%,#030a06 100%)}
+.nomotion .mn-rays,.nomotion .mn-logo{animation:none!important}

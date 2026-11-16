@@ -1,0 +1,128 @@
+/* ===================== 🌸 SAKURA THEME ===================== */
+.th-sakura{--a1:#ff7eb6;--a1r:255,126,182;--a2:#b77cff;--a2r:183,124,255;--pink:#ffc6de;--o1:#ff5fa2;--o2:#a35cff;--o3:#ffb0cf;
+  --bg1:#3b1233;--panel:#1c0b1b;--deepr:30,11,28;--buy1:#ffa6cf;--buy2:#ff4f97;--buyr:255,90,160;--buytx:#fff;--ring:#ff8fc1;
+  --tx:#fff4f9;--mu:#b89cb2;--mu2:#7e6479;--st:rgba(255,190,222,.18);--st2:rgba(255,190,222,.09);
+  --gr:#6ff5c6;--rd:#ff5a7e;--gold:#ffcf7a;
+  --spring:cubic-bezier(.34,1.56,.64,1);--soft:cubic-bezier(.22,.9,.25,1)}
+.sk-scene,#skPetals,.sk-only{display:none}
+.th-sakura .sk-scene,.th-sakura #skPetals{display:block}
+.th-sakura .sk-only{display:flex}
+
+/* --- sky --- */
+.th-sakura #bg{background:radial-gradient(120% 70% at 70% -8%,#4a1740 0%,#250c22 42%,#12060f 75%,#0a0409 100%)}
+.th-sakura .gridbg{opacity:.12}
+.th-sakura .orb{opacity:.32;filter:blur(80px)}
+.th-sakura .o2{opacity:.2}.th-sakura .o3{opacity:.16}
+#skPetals{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+.sk-scene{position:absolute;inset:0;z-index:2;pointer-events:none;transform:translateX(var(--tx,0));transition:transform 1.2s var(--soft)}
+.sk-moon{position:absolute;top:calc(var(--sat) + 4vh);right:12vw;width:30vw;height:30vw;border-radius:50%;
+  background:radial-gradient(circle at 45% 40%,rgba(255,246,251,.9) 0%,rgba(255,215,232,.55) 35%,rgba(247,185,214,.12) 60%,rgba(247,185,214,0) 70%);
+  opacity:.28;animation:skMoon 9s ease-in-out infinite alternate}
+@keyframes skMoon{to{opacity:.38;transform:translateY(-6px) scale(1.04)}}
+.sk-mtn{position:absolute;left:0;right:0;bottom:0;width:100%;height:20vh;opacity:.9}
+.sk-branch{position:absolute;top:calc(var(--sat) - 10px);right:-16vw;width:74vw;max-width:460px;opacity:.6;filter:drop-shadow(0 6px 18px rgba(255,120,180,.25))}
+.sk-sway{transform-origin:372px -6px;animation:skSway 7s ease-in-out infinite}
+.sk-scene.gust .sk-sway{animation:skGust 2.6s var(--soft),skSway 7s ease-in-out 2.6s infinite}
+@keyframes skSway{0%,100%{transform:rotate(0)}50%{transform:rotate(1.6deg)}}
+@keyframes skGust{0%{transform:rotate(0)}25%{transform:rotate(calc(var(--g,1) * 2.4deg))}55%{transform:rotate(calc(var(--g,1) * -1deg))}100%{transform:rotate(0)}}
+.skf-in{transform-box:fill-box;transform-origin:center}
+.sk-scene.bloom .skf-in{animation:skBloom 1.1s var(--spring) both;animation-delay:var(--d)}
+@keyframes skBloom{0%{transform:scale(0) rotate(-120deg);opacity:0}70%{opacity:1}100%{transform:none;opacity:1}}
+.th-sakura .skf .skf-in{animation:skBreath 5s ease-in-out infinite}
+.th-sakura .sk-scene.bloom .skf .skf-in{animation:skBloom 1.1s var(--spring) both,skBreath 5s ease-in-out infinite;animation-delay:var(--d),calc(var(--d) + 1.1s)}
+@keyframes skBreath{50%{transform:scale(1.06) rotate(4deg)}}
+
+/* --- glass --- */
+.th-sakura .glass{background:linear-gradient(145deg,rgba(255,200,226,.11),rgba(255,255,255,.025) 60%,rgba(183,124,255,.05));
+  border-color:rgba(255,190,222,.17);box-shadow:inset 0 1px 0 rgba(255,230,242,.16),0 12px 32px -12px rgba(20,0,16,.75)}
+.th-sakura .glassbar{background:rgba(30,11,28,.5)}
+.th-sakura #hdr{border-bottom-color:rgba(255,190,222,.12)}
+.th-sakura h1{background:linear-gradient(100deg,#fff 10%,#ffc6de 55%,#d8b4ff);-webkit-background-clip:text;background-clip:text;color:transparent;position:relative;display:inline-block}
+.th-sakura h1::after{content:"";position:absolute;left:0;right:-6px;bottom:-3px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--a1),rgba(183,124,255,0));transform-origin:left;animation:skLine .9s var(--soft) both .15s}
+@keyframes skLine{from{transform:scaleX(0)}}
+
+/* --- logo --- */
+.th-sakura .lg-mark{background:none;box-shadow:none;animation:none}
+.th-sakura .lg-mark::after{display:none}
+.sk-logo{display:none}
+.th-sakura .sk-logo{display:block;position:absolute;inset:-3px;animation:skSpin 14s linear infinite;filter:drop-shadow(0 0 8px rgba(255,126,182,.8))}
+.sk-logo svg,.sk-tap svg{width:100%;height:100%;display:block}
+@keyframes skSpin{to{transform:rotate(360deg)}}
+.th-sakura .logo b{background:linear-gradient(90deg,#fff,#ffc6de,#fff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:skText 5s linear infinite}
+@keyframes skText{to{background-position:-200% 0}}
+
+/* --- balance pill --- */
+.th-sakura .bal{background:linear-gradient(135deg,rgba(255,126,182,.38),rgba(183,124,255,.2));box-shadow:0 0 24px -6px rgba(255,126,182,.85)}
+.th-sakura .bal::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);background-size:250% 100%;animation:shine 3.4s linear infinite;pointer-events:none}
+.th-sakura .bal.pop{animation:skPop .7s var(--spring)}
+@keyframes skPop{0%{transform:scale(1)}30%{transform:scale(1.2) rotate(-3deg);filter:brightness(1.5)}60%{transform:scale(.96) rotate(1deg)}100%{transform:none}}
+
+/* --- views & cards --- */
+.th-sakura .view{transition:opacity .35s,transform .55s var(--spring)}
+.th-sakura .card.enter{animation:skCard .75s var(--soft) both}
+@keyframes skCard{0%{opacity:0;transform:perspective(600px) translateY(22px) rotateX(24deg) scale(.94);filter:blur(6px) brightness(1.8)}
+  55%{opacity:1;filter:blur(0) brightness(1.2)}100%{opacity:1;transform:none;filter:none}}
+.th-sakura .card.enter::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,198,222,.35) 50%,transparent 70%);background-size:250% 100%;animation:skSweep .9s ease-out both;pointer-events:none}
+@keyframes skSweep{from{background-position:150% 0}to{background-position:-100% 0;opacity:0}}
+.th-sakura .card{transition:transform .35s var(--spring),opacity .5s,filter .5s}
+.th-sakura .card:active{transform:scale(.965)}
+.th-sakura .card.hot{border-color:rgba(255,126,182,.55);box-shadow:0 0 0 1px rgba(255,126,182,.18),0 0 30px -8px rgba(255,126,182,.85),inset 0 1px 0 rgba(255,230,242,.14)}
+.th-sakura .card.hot::before{background:linear-gradient(110deg,transparent 30%,rgba(255,126,182,.16) 50%,transparent 70%);background-size:250% 100%}
+
+/* --- segmented controls & nav: springy --- */
+.th-sakura .seg-ind{transition:left .55s var(--spring),width .55s var(--spring);background:linear-gradient(135deg,rgba(255,126,182,.32),rgba(183,124,255,.14));border-color:rgba(255,198,222,.3);box-shadow:0 4px 16px -2px rgba(255,126,182,.45)}
+.th-sakura .nav-ind{transition:left .6s var(--spring),width .6s var(--spring);background:linear-gradient(135deg,rgba(255,126,182,.5),rgba(183,124,255,.24));box-shadow:0 0 26px -4px rgba(255,126,182,.9)}
+.th-sakura #nav{border-color:rgba(255,190,222,.2)}
+.th-sakura #nav button.on svg{filter:drop-shadow(0 0 9px rgba(255,126,182,.95));animation:skNav .6s var(--spring)}
+@keyframes skNav{0%{transform:scale(.6) rotate(-25deg)}100%{transform:translateY(-1px) scale(1.08)}}
+.th-sakura #nav button.nlaunch .rk{background:linear-gradient(135deg,#ff8fc1,#ff4f97 55%,#b77cff);position:relative}
+.th-sakura #nav button.nlaunch .rk::before{content:"";position:absolute;inset:-5px;border-radius:20px;border:2px dashed rgba(255,198,222,.55);animation:skSpin 10s linear infinite}
+.th-sakura .minis button{transition:all .35s var(--spring)}
+.th-sakura .minis button.on{background:linear-gradient(135deg,rgba(255,126,182,.45),rgba(183,124,255,.25));border-color:rgba(255,198,222,.55);transform:scale(1.04)}
+
+/* --- buttons --- */
+.th-sakura .big-btn.buy{background:linear-gradient(120deg,#ffb3d6,#ff5fa2 40%,#ff4f97 60%,#d17cff);background-size:220% 100%;animation:skFlow 4s ease-in-out infinite,skGlow 2.4s ease-in-out infinite}
+.th-sakura .big-btn.sell{background:linear-gradient(120deg,#ff9aa8,#ff3d6e 45%,#c2185b);background-size:220% 100%;animation:skFlow 4s ease-in-out infinite}
+@keyframes skFlow{50%{background-position:100% 0}}
+@keyframes skGlow{50%{box-shadow:0 12px 38px -6px rgba(255,90,160,.95),inset 0 1px 0 rgba(255,255,255,.6)}}
+.th-sakura .big-btn{transition:transform .3s var(--spring),filter .3s}
+.th-sakura .big-btn:active{transform:scale(.94)}
+.th-sakura .ripple{background:rgba(255,214,232,.45)}
+
+/* --- tap blossom --- */
+.sk-tap{position:fixed;z-index:90;width:34px;height:34px;margin:-17px 0 0 -17px;pointer-events:none;animation:skTapA .7s var(--soft) forwards}
+@keyframes skTapA{0%{transform:scale(0) rotate(var(--r));opacity:1}45%{transform:scale(1.15) rotate(0);opacity:1}100%{transform:scale(1.5) rotate(40deg);opacity:0}}
+
+/* --- sheet --- */
+.th-sakura #sheet{background:linear-gradient(180deg,rgba(40,13,36,.93),rgba(14,5,13,.97));transition:transform .65s var(--spring)}
+.th-sakura #sheet.sk-stag #shBody>*{animation:skRise .7s var(--soft) both}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(1){animation-delay:.08s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(2){animation-delay:.14s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(3){animation-delay:.2s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(4){animation-delay:.26s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(5){animation-delay:.32s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(6){animation-delay:.38s}
+.th-sakura #sheet.sk-stag #shBody>*:nth-child(n+7){animation-delay:.44s}
+@keyframes skRise{0%{opacity:0;transform:translateY(34px) scale(.96);filter:blur(5px)}100%{opacity:1;transform:none;filter:none}}
+
+/* --- toasts & modals --- */
+.th-sakura .toast{background:rgba(36,12,33,.8);border-color:rgba(255,190,222,.24);animation:skToast .7s var(--spring) both;overflow:hidden;position:relative}
+.th-sakura .toast::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,198,222,.22) 50%,transparent 70%);background-size:250% 100%;animation:skSweep 1.2s ease-out .15s both;pointer-events:none}
+.th-sakura .toast .ti{animation:skIcon .8s var(--spring) both .1s}
+@keyframes skToast{0%{opacity:0;transform:translateY(-46px) scale(.75) rotate(-4deg);filter:blur(6px)}100%{opacity:1;transform:none;filter:none}}
+@keyframes skIcon{0%{transform:scale(0) rotate(-180deg)}100%{transform:none}}
+.th-sakura .toast.out{animation:skToastOut .4s ease-in both}
+@keyframes skToastOut{to{opacity:0;transform:translateY(-24px) scale(.9) rotate(2deg);filter:blur(4px)}}
+.th-sakura .mbox{background:linear-gradient(160deg,rgba(52,16,46,.96),rgba(22,8,20,.97));border-color:rgba(255,190,222,.22)}
+.th-sakura #modal.on .mbox,.th-sakura #ov.on .mbox{animation:skModal .6s var(--spring) both}
+@keyframes skModal{0%{opacity:0;transform:translateY(80px) scale(.88);filter:blur(8px)}100%{opacity:1;transform:none;filter:none}}
+
+/* --- misc accents --- */
+.th-sakura .live i{background:#ff7eb6;box-shadow:0 0 10px #ff7eb6}
+.th-sakura .tag.ok,.th-sakura .cx.good{background:rgba(111,245,198,.12)}
+.th-sakura input:focus,.th-sakura .search:focus-within{border-color:rgba(255,126,182,.55)!important;box-shadow:0 0 0 3px rgba(255,126,182,.15)}
+.th-sakura .bubmap circle{transition:r .4s}
+
+/* motion off: freeze everything sakura */
+.nomotion .sk-sway,.nomotion .skf-in,.nomotion .sk-moon,.nomotion .sk-logo,.nomotion .big-btn,.nomotion .logo b,.nomotion #nav .rk::before{animation:none!important}
+.nomotion #skPetals{display:none!important}
